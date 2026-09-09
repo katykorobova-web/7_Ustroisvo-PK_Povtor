@@ -1,1 +1,1024 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Устройство компьютера — рабочий лист</title>
+<style>
+  :root {
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --text: #18181b;
+    --text-muted: #71717a;
+    --border: #e4e4e7;
+    --border-strong: #d4d4d8;
+    --accent: #2563eb;
+    --accent-soft: #dbeafe;
+    --success: #16a34a;
+    --success-soft: #dcfce7;
+    --error: #dc2626;
+    --error-soft: #fee2e2;
+    --radius: 14px;
+    --radius-sm: 10px;
+    --shadow-sm: 0 1px 2px rgba(24, 24, 27, 0.04);
+    --shadow: 0 4px 16px rgba(24, 24, 27, 0.06);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+  }
+
+  header.page-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  header.page-header .eyebrow {
+    font-size: 13px;
+    color: var(--text-muted);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  header.page-header h1 {
+    font-size: 28px;
+    font-weight: 600;
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+  }
+
+  header.page-header p {
+    color: var(--text-muted);
+    margin: 0;
+    font-size: 15px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 16px;
+  }
+
+  .task-label {
+    display: inline-block;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+    letter-spacing: 0.02em;
+  }
+
+  .task-title {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0 0 16px;
+    letter-spacing: -0.005em;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    min-height: 48px;
+    font-size: 15px;
+    text-align: left;
+    width: 100%;
+    color: var(--text);
+    font-family: inherit;
+  }
+
+  .option:hover { border-color: var(--border-strong); }
+
+  .option:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .option.selected {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  .option .dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--border-strong);
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .option.selected .dot {
+    border-color: var(--accent);
+  }
+
+  .option.selected .dot::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+
+  /* Match task */
+  .match-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .match-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+  }
+
+  .match-row .name {
+    font-size: 15px;
+  }
+
+  .seg {
+    display: inline-flex;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  .seg button {
+    border: none;
+    background: transparent;
+    padding: 8px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    color: var(--text-muted);
+    min-height: 36px;
+    font-family: inherit;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .seg button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+
+  .seg button.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* Fill blanks */
+  .blank-text {
+    font-size: 16px;
+    line-height: 1.7;
+    margin: 0 0 12px;
+  }
+
+  .blank-input {
+    display: inline-block;
+    border: none;
+    border-bottom: 2px solid var(--border-strong);
+    background: transparent;
+    font-size: 16px;
+    font-family: inherit;
+    color: var(--text);
+    padding: 2px 4px;
+    min-width: 120px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .blank-input:focus {
+    border-bottom-color: var(--accent);
+  }
+
+  /* Text input */
+  .text-input {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--surface);
+    resize: vertical;
+    min-height: 60px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .text-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  .hint {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 8px;
+  }
+
+  /* Feedback */
+  .feedback {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    display: none;
+  }
+
+  .feedback.show { display: block; }
+
+  .feedback.ok {
+    background: var(--success-soft);
+    color: #166534;
+  }
+
+  .feedback.err {
+    background: var(--error-soft);
+    color: #991b1b;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 22px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.05s, background 0.15s, box-shadow 0.15s;
+    min-height: 48px;
+  }
+
+  .btn:active { transform: scale(0.98); }
+
+  .btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+  }
+
+  .btn-primary:hover { background: #1d4ed8; }
+
+  .btn-secondary {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover { background: var(--bg); }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+
+  /* Start screen */
+  .start-card {
+    text-align: center;
+    padding: 40px 24px;
+  }
+
+  .start-card h2 {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+  }
+
+  .start-card p {
+    color: var(--text-muted);
+    margin: 0 0 24px;
+    font-size: 15px;
+  }
+
+  .meta-row {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .meta-row span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Result */
+  .result-card {
+    text-align: center;
+    padding: 36px 24px;
+  }
+
+  .score-ring {
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 20px;
+    position: relative;
+  }
+
+  .score-ring svg { transform: rotate(-90deg); }
+
+  .score-ring .bg { stroke: var(--border); }
+  .score-ring .fg {
+    stroke: var(--accent);
+    transition: stroke-dashoffset 0.8s ease;
+  }
+
+  .score-num {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .score-num .big {
+    font-size: 36px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .score-num .small {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .result-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+
+  .result-sub {
+    color: var(--text-muted);
+    margin: 0 0 24px;
+    font-size: 15px;
+  }
+
+  /* Progress bar */
+  .progress {
+    height: 4px;
+    background: var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+
+  .progress-text {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  /* Hidden */
+  .hidden { display: none !important; }
+
+  @media (max-width: 480px) {
+    main { padding: 20px 16px 60px; }
+    header.page-header h1 { font-size: 24px; }
+    .card { padding: 20px 18px; }
+    .match-row { grid-template-columns: 1fr; }
+    .seg { width: 100%; }
+    .seg button { flex: 1; }
+  }
+</style>
+</head>
+<body>
+<main id="app" aria-live="polite"></main>
+
+<script>
+/* =========================================================
+   КОНСТАНТЫ: задания рабочего листа
+   ========================================================= */
+const TASKS = [
+  {
+    id: 'mcq1',
+    type: 'mcq',
+    label: 'Задание 1 · выбор ответа',
+    title: 'Какое из перечисленных устройств является устройством ввода?',
+    options: ['Монитор', 'Принтер', 'Клавиатура', 'Колонки'],
+    correct: 2,
+    explain: 'Клавиатура преобразует нажатия клавиш в форму, понятную компьютеру — это устройство ввода.'
+  },
+  {
+    id: 'mcq2',
+    type: 'mcq',
+    label: 'Задание 2 · выбор ответа',
+    title: 'Что из перечисленного НЕ является функцией процессора?',
+    options: [
+      'Выполняет вычисления',
+      'Обрабатывает команды программ',
+      'Хранит данные после выключения компьютера',
+      'Управляет работой других устройств'
+    ],
+    correct: 2,
+    explain: 'Хранение данных после выключения — задача долговременной памяти (HDD, SSD), а не процессора.'
+  },
+  {
+    id: 'match',
+    type: 'match',
+    label: 'Задание 3 · сопоставление',
+    title: 'Определи тип каждого устройства: ввод или вывод.',
+    items: [
+      { name: 'Монитор', correct: 'вывод' },
+      { name: 'Мышь', correct: 'ввод' },
+      { name: 'Принтер', correct: 'вывод' },
+      { name: 'Микрофон', correct: 'ввод' },
+      { name: 'Сканер', correct: 'ввод' },
+      { name: 'Проектор', correct: 'вывод' }
+    ]
+  },
+  {
+    id: 'blank',
+    type: 'blank',
+    label: 'Задание 4 · заполни пропуски',
+    title: 'Вставь пропущенные слова.',
+    sentences: [
+      {
+        before: 'Оперативная память хранит данные, пока компьютер ',
+        answer: 'включён',
+        after: '.'
+      },
+      {
+        before: 'Устройства ',
+        answer: 'вывода',
+        after: ' переводят информацию из машинного представления в образы, понятные человеку.'
+      },
+      {
+        before: 'Процессор — это ',
+        answer: 'центральное',
+        after: ' устройство компьютера.'
+      }
+    ]
+  },
+  {
+    id: 'text',
+    type: 'text',
+    label: 'Задание 5 · короткий ответ',
+    title: 'Назови любые два устройства долговременной памяти.',
+    hint: 'Подсказка: подумай, где данные хранятся, когда компьютер выключен.',
+    acceptable: [
+      ['жёсткий диск', 'ssd'],
+      ['жёсткий диск', 'флеш'],
+      ['hdd', 'ssd'],
+      ['hdd', 'флеш'],
+      ['ssd', 'флеш'],
+      ['жёсткий диск', 'hdd'],
+      ['ssd', 'hdd'],
+      ['флеш', 'жёсткий диск'],
+      ['флеш', 'ssd'],
+      ['флеш', 'hdd']
+    ],
+    explain: 'Устройства долговременной памяти: жёсткий диск (HDD), SSD, флеш-накопитель.'
+  }
+];
+
+/* =========================================================
+   СОСТОЯНИЕ
+   ========================================================= */
+const state = {
+  screen: 'start', // 'start' | 'quiz' | 'result'
+  answers: {},     // { taskId: value }
+  checked: {},     // { taskId: true } — показан фидбек
+  score: 0,
+  total: TASKS.length
+};
+
+/* =========================================================
+   УТИЛИТЫ
+   ========================================================= */
+const app = document.getElementById('app');
+
+// Безопасное создание элементов
+function el(tag, props = {}, children = []) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (k === 'class') node.className = v;
+    else if (k === 'text') node.textContent = v;
+    else if (k.startsWith('on') && typeof v === 'function') {
+      node.addEventListener(k.slice(2).toLowerCase(), v);
+    } else if (k === 'htmlFor') node.htmlFor = v;
+    else if (k in node) node[k] = v;
+    else node.setAttribute(k, v);
+  }
+  (Array.isArray(children) ? children : [children]).forEach(c => {
+    if (c == null) return;
+    node.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+  });
+  return node;
+}
+
+// Нормализация текста для проверки ответов
+function norm(s) {
+  return (s || '').toLowerCase().trim()
+    .replace(/ё/g, 'е')
+    .replace(/[^a-zа-я0-9\s-]/g, '')
+    .replace(/\s+/g, ' ');
+}
+
+/* =========================================================
+   РЕНДЕР: шапка страницы
+   ========================================================= */
+function renderHeader() {
+  return el('header', { class: 'page-header' }, [
+    el('div', { class: 'eyebrow', text: 'Информатика · 7 класс' }),
+    el('h1', { text: 'Устройство компьютера' }),
+    el('p', { text: 'Интерактивный рабочий лист' })
+  ]);
+}
+
+/* =========================================================
+   РЕНДЕР: экран «Старт»
+   ========================================================= */
+function renderStart() {
+  const card = el('div', { class: 'card start-card' }, [
+    el('h2', { text: 'Проверь свои знания' }),
+    el('p', { text: 'В рабочем листе 5 заданий разного типа: выбор ответа, сопоставление, пропуски и короткий ответ. После завершения ты увидишь свой результат.' }),
+    el('div', { class: 'meta-row' }, [
+      el('span', { text: '📝 5 заданий' }),
+      el('span', { text: '⏱ ≈ 7 минут' }),
+      el('span', { text: '🎯 базовый уровень' })
+    ]),
+    el('button', {
+      class: 'btn btn-primary',
+      onclick: () => { state.screen = 'quiz'; render(); }
+    }, 'Начать')
+  ]);
+  return el('section', {}, [renderHeader(), card]);
+}
+
+/* =========================================================
+   РЕНДЕР: прогресс
+   ========================================================= */
+function renderProgress() {
+  const answered = Object.keys(state.answers).length;
+  const pct = Math.round((answered / state.total) * 100);
+  return el('div', {}, [
+    el('div', { class: 'progress-text' }, [
+      el('span', { text: `Выполнено: ${answered} из ${state.total}` }),
+      el('span', { text: `${pct}%` })
+    ]),
+    el('div', { class: 'progress' }, [
+      el('div', { class: 'progress-bar', style: `width:${pct}%` })
+    ])
+  ]);
+}
+
+/* =========================================================
+   РЕНДЕР: задание с выбором ответа
+   ========================================================= */
+function renderMCQ(task) {
+  const selected = state.answers[task.id];
+  const isChecked = state.checked[task.id];
+  const isCorrect = selected === task.correct;
+
+  const optionsWrap = el('div', { class: 'options', role: 'radiogroup' });
+  task.options.forEach((opt, i) => {
+    const btn = el('button', {
+      class: 'option' + (selected === i ? ' selected' : ''),
+      type: 'button',
+      'aria-pressed': selected === i ? 'true' : 'false',
+      onclick: () => {
+        if (isChecked) return;
+        state.answers[task.id] = i;
+        render();
+      }
+    }, [
+      el('span', { class: 'dot' }),
+      el('span', { text: opt })
+    ]);
+    optionsWrap.appendChild(btn);
+  });
+
+  const nodes = [
+    el('span', { class: 'task-label', text: task.label }),
+    el('h3', { class: 'task-title', text: task.title }),
+    optionsWrap
+  ];
+
+  if (isChecked) {
+    nodes.push(el('div', {
+      class: 'feedback show ' + (isCorrect ? 'ok' : 'err'),
+      text: (isCorrect ? '✓ Верно. ' : '✗ Неверно. ') + task.explain
+    }));
+  }
+
+  nodes.push(renderTaskActions(task));
+  return el('div', { class: 'card' }, nodes);
+}
+
+/* =========================================================
+   РЕНДЕР: сопоставление
+   ========================================================= */
+function renderMatch(task) {
+  const current = state.answers[task.id] || {};
+  const isChecked = state.checked[task.id];
+
+  const list = el('div', { class: 'match-list' });
+  task.items.forEach((item, i) => {
+    const val = current[i] || null;
+    const seg = el('div', { class: 'seg', role: 'group', 'aria-label': item.name });
+    ['ввод', 'вывод'].forEach(choice => {
+      const b = el('button', {
+        type: 'button',
+        class: val === choice ? 'active' : '',
+        'aria-pressed': val === choice ? 'true' : 'false',
+        onclick: () => {
+          if (isChecked) return;
+          const cur = { ...(state.answers[task.id] || {}) };
+          cur[i] = choice;
+          state.answers[task.id] = cur;
+          render();
+        }
+      }, choice === 'ввод' ? 'Ввод' : 'Вывод');
+      seg.appendChild(b);
+    });
+    list.appendChild(el('div', { class: 'match-row' }, [
+      el('div', { class: 'name', text: item.name }),
+      seg
+    ]));
+  });
+
+  const nodes = [
+    el('span', { class: 'task-label', text: task.label }),
+    el('h3', { class: 'task-title', text: task.title }),
+    list
+  ];
+
+  if (isChecked) {
+    const correct = task.items.every((it, i) => current[i] === it.correct);
+    nodes.push(el('div', {
+      class: 'feedback show ' + (correct ? 'ok' : 'err'),
+      text: correct
+        ? '✓ Отлично! Все устройства определены верно.'
+        : '✗ Есть ошибки. Сравни с правильным вариантом и запомни: ввод — клавиатура, мышь, сканер, микрофон, веб-камера, тачпад; вывод — монитор, принтер, колонки, проектор, плоттер.'
+    }));
+  }
+
+  nodes.push(renderTaskActions(task));
+  return el('div', { class: 'card' }, nodes);
+}
+
+/* =========================================================
+   РЕНДЕР: заполнение пропусков
+   ========================================================= */
+function renderBlank(task) {
+  const current = state.answers[task.id] || [];
+  const isChecked = state.checked[task.id];
+
+  const textNode = el('p', { class: 'blank-text' });
+  task.sentences.forEach((s, i) => {
+    textNode.appendChild(document.createTextNode(s.before));
+    const input = el('input', {
+      class: 'blank-input',
+      type: 'text',
+      value: current[i] || '',
+      'aria-label': `Пропуск ${i + 1}`,
+      autocomplete: 'off',
+      spellcheck: false,
+      oninput: (e) => {
+        const arr = [...(state.answers[task.id] || [])];
+        arr[i] = e.target.value;
+        state.answers[task.id] = arr;
+      }
+    });
+    if (isChecked) {
+      const ok = norm(current[i] || '') === norm(s.answer);
+      input.style.borderBottomColor = ok ? 'var(--success)' : 'var(--error)';
+    }
+    textNode.appendChild(input);
+    textNode.appendChild(document.createTextNode(s.after + ' '));
+  });
+
+  const nodes = [
+    el('span', { class: 'task-label', text: task.label }),
+    el('h3', { class: 'task-title', text: task.title }),
+    textNode
+  ];
+
+  if (isChecked) {
+    const allCorrect = task.sentences.every((s, i) => norm(current[i] || '') === norm(s.answer));
+    const correctList = task.sentences.map(s => `«${s.answer}»`).join(', ');
+    nodes.push(el('div', {
+      class: 'feedback show ' + (allCorrect ? 'ok' : 'err'),
+      text: allCorrect
+        ? '✓ Все пропуски заполнены верно!'
+        : '✗ Правильные ответы: ' + correctList + '.'
+    }));
+  }
+
+  nodes.push(renderTaskActions(task));
+  return el('div', { class: 'card' }, nodes);
+}
+
+/* =========================================================
+   РЕНДЕР: ввод текста
+   ========================================================= */
+function renderText(task) {
+  const val = state.answers[task.id] || '';
+  const isChecked = state.checked[task.id];
+  const isCorrect = isChecked && checkTextAnswer(task, val);
+
+  const ta = el('textarea', {
+    class: 'text-input',
+    placeholder: 'Например: жёсткий диск, SSD',
+    'aria-label': task.title,
+    oninput: (e) => { state.answers[task.id] = e.target.value; }
+  });
+  ta.value = val;
+
+  const nodes = [
+    el('span', { class: 'task-label', text: task.label }),
+    el('h3', { class: 'task-title', text: task.title }),
+    ta,
+    task.hint ? el('div', { class: 'hint', text: task.hint }) : null
+  ];
+
+  if (isChecked) {
+    nodes.push(el('div', {
+      class: 'feedback show ' + (isCorrect ? 'ok' : 'err'),
+      text: isCorrect
+        ? '✓ Верно! ' + task.explain
+        : '✗ Не совсем. ' + task.explain
+    }));
+  }
+
+  nodes.push(renderTaskActions(task));
+  return el('div', { class: 'card' }, nodes.filter(Boolean));
+}
+
+function checkTextAnswer(task, val) {
+  const words = norm(val).split(/\s+/).filter(Boolean);
+  // Нужно найти хотя бы одну полную пару из acceptable
+  return task.acceptable.some(pair => {
+    return pair.every(p => words.includes(norm(p)));
+  });
+}
+
+/* =========================================================
+   Кнопки действий задания
+   ========================================================= */
+function renderTaskActions(task) {
+  const isChecked = state.checked[task.id];
+  const hasAnswer = taskAnswered(task);
+
+  const wrap = el('div', { class: 'actions' });
+
+  if (!isChecked) {
+    const checkBtn = el('button', {
+      class: 'btn btn-primary',
+      disabled: !hasAnswer,
+      onclick: () => {
+        if (!hasAnswer) return;
+        state.checked[task.id] = true;
+        render();
+      }
+    }, 'Проверить');
+    wrap.appendChild(checkBtn);
+  } else {
+    const resetBtn = el('button', {
+      class: 'btn btn-secondary',
+      onclick: () => {
+        delete state.checked[task.id];
+        delete state.answers[task.id];
+        render();
+      }
+    }, 'Ответить заново');
+    wrap.appendChild(resetBtn);
+  }
+
+  return wrap;
+}
+
+function taskAnswered(task) {
+  const a = state.answers[task.id];
+  if (task.type === 'mcq') return a != null;
+  if (task.type === 'match') {
+    return task.items.every((_, i) => a && a[i]);
+  }
+  if (task.type === 'blank') {
+    return Array.isArray(a) && task.sentences.every((_, i) => (a[i] || '').trim().length > 0);
+  }
+  if (task.type === 'text') return (a || '').trim().length > 0;
+  return false;
+}
+
+/* =========================================================
+   РЕНДЕР: экран «Тест»
+   ========================================================= */
+function renderQuiz() {
+  const tasks = TASKS.map(t => {
+    if (t.type === 'mcq') return renderMCQ(t);
+    if (t.type === 'match') return renderMatch(t);
+    if (t.type === 'blank') return renderBlank(t);
+    if (t.type === 'text') return renderText(t);
+    return null;
+  });
+
+  const allChecked = TASKS.every(t => state.checked[t.id]);
+
+  const finishBtn = el('div', { class: 'card', style: 'text-align:center' }, [
+    el('p', {
+      class: 'hint',
+      text: allChecked
+        ? 'Все задания проверены. Можно посмотреть результат.'
+        : 'Проверь все задания, чтобы увидеть итоговый результат.'
+    }),
+    el('button', {
+      class: 'btn btn-primary',
+      disabled: !allChecked,
+      onclick: () => {
+        state.score = computeScore();
+        state.screen = 'result';
+        render();
+      }
+    }, 'Показать результат')
+  ]);
+
+  return el('section', {}, [
+    renderHeader(),
+    renderProgress(),
+    ...tasks,
+    finishBtn
+  ]);
+}
+
+/* =========================================================
+   ПОДСЧЁТ БАЛЛОВ
+   ========================================================= */
+function computeScore() {
+  let s = 0;
+  TASKS.forEach(t => {
+    const a = state.answers[t.id];
+    if (t.type === 'mcq') {
+      if (a === t.correct) s++;
+    } else if (t.type === 'match') {
+      if (t.items.every((it, i) => a && a[i] === it.correct)) s++;
+    } else if (t.type === 'blank') {
+      if (t.sentences.every((sent, i) => norm(a && a[i]) === norm(sent.answer))) s++;
+    } else if (t.type === 'text') {
+      if (checkTextAnswer(t, a || '')) s++;
+    }
+  });
+  return s;
+}
+
+/* =========================================================
+   РЕНДЕР: экран «Результат»
+   ========================================================= */
+function renderResult() {
+  const pct = Math.round((state.score / state.total) * 100);
+  const circ = 2 * Math.PI * 58;
+  const offset = circ - (circ * pct / 100);
+
+  let title = 'Хорошая работа!';
+  let sub = 'Ты неплохо разбираешься в устройстве компьютера.';
+  if (pct === 100) { title = 'Превосходно!'; sub = 'Все задания выполнены без ошибок.'; }
+  else if (pct < 50) { title = 'Есть над чем поработать'; sub = 'Повтори материал и попробуй ещё раз.'; }
+
+  const ring = el('div', { class: 'score-ring' }, [
+    (() => {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('viewBox', '0 0 140 140');
+      svg.setAttribute('width', '140');
+      svg.setAttribute('height', '140');
+      const bg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      bg.setAttribute('class', 'bg');
+      bg.setAttribute('cx', '70'); bg.setAttribute('cy', '70'); bg.setAttribute('r', '58');
+      bg.setAttribute('fill', 'none'); bg.setAttribute('stroke-width', '10');
+      const fg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      fg.setAttribute('class', 'fg');
+      fg.setAttribute('cx', '70'); fg.setAttribute('cy', '70'); fg.setAttribute('r', '58');
+      fg.setAttribute('fill', 'none'); fg.setAttribute('stroke-width', '10');
+      fg.setAttribute('stroke-linecap', 'round');
+      fg.setAttribute('stroke-dasharray', circ.toFixed(2));
+      fg.setAttribute('stroke-dashoffset', circ.toFixed(2));
+      svg.appendChild(bg); svg.appendChild(fg);
+      // анимация после вставки
+      requestAnimationFrame(() => {
+        fg.setAttribute('stroke-dashoffset', offset.toFixed(2));
+      });
+      return svg;
+    })(),
+    el('div', { class: 'score-num' }, [
+      el('div', { class: 'big', text: `${state.score}/${state.total}` }),
+      el('div', { class: 'small', text: `${pct}%` })
+    ])
+  ]);
+
+  const card = el('div', { class: 'card result-card' }, [
+    ring,
+    el('h2', { class: 'result-title', text: title }),
+    el('p', { class: 'result-sub', text: sub }),
+    el('div', { class: 'actions', style: 'justify-content:center' }, [
+      el('button', {
+        class: 'btn btn-secondary',
+        onclick: () => {
+          state.screen = 'start';
+          state.answers = {};
+          state.checked = {};
+          state.score = 0;
+          render();
+        }
+      }, 'Пройти ещё раз')
+    ])
+  ]);
+
+  return el('section', {}, [renderHeader(), card]);
+}
+
+/* =========================================================
+   ГЛАВНЫЙ РЕНДЕР
+   ========================================================= */
+function render() {
+  app.textContent = ''; // очистка без innerHTML с пользовательским вводом
+  let view;
+  if (state.screen === 'start') view = renderStart();
+  else if (state.screen === 'quiz') view = renderQuiz();
+  else view = renderResult();
+  app.appendChild(view);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* =========================================================
+   ИНИЦИАЛИЗАЦИЯ
+   ========================================================= */
+function init() {
+  render();
+}
+
+init();
+</script>
+</body>
+</html>
 
